@@ -24,12 +24,18 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
-
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
+	"time"
 
 	"github.com/Shopify/sarama"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
+
+type person struct {
+	name string
+	age  int
+}
 
 var (
 	brokerList = kingpin.Flag("brokerList", "List of brokers to connect").Default("localhost:29092").Strings()
@@ -38,6 +44,7 @@ var (
 )
 
 func main() {
+
 	kingpin.Parse()
 	config := sarama.NewConfig()
 	config.Producer.RequiredAcks = sarama.WaitForAll
@@ -52,13 +59,24 @@ func main() {
 			log.Panic(err)
 		}
 	}()
+	s := person{name: "Sean", age: 50}
+	// msg := &sarama.ProducerMessage{
+	// 	Topic: *topic,
+	// 	Value: sarama.StringEncoder("Something Coola"),
+	// }
+	b, err := json.Marshal(s)
 	msg := &sarama.ProducerMessage{
 		Topic: *topic,
-		Value: sarama.StringEncoder("Something Coola"),
+		Value: b,
 	}
-	partition, offset, err := producer.SendMessage(msg)
-	if err != nil {
-		log.Panic(err)
+
+	for {
+		partition, offset, err := producer.SendMessage(msg)
+		if err != nil {
+			log.Panic(err)
+		}
+		log.Printf("Message is stored in topic(%s)/partition(%d)/offset(%d)\n", *topic, partition, offset)
+		time.Sleep(5 * time.Second)
+
 	}
-	log.Printf("Message is stored in topic(%s)/partition(%d)/offset(%d)\n", *topic, partition, offset)
 }
