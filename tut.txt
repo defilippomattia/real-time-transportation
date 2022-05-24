@@ -1,0 +1,9 @@
+upali docker
+ako ne radi docker: docker-desktop-settings-resources-wsl integration
+cd /home/mattia/everything/uni/seminar2/real-time-transportation
+source venv/bin/activate
+sudo docker-compose up -d (pass je mattia)
+python producer.py
+new shell: streamlit run consumer.py
+localhost:8501 (ili koji god izbaci streamlit)
+localhost:8081

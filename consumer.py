@@ -6,8 +6,19 @@ import numpy as np
 import threading
 import json
 from kafka import KafkaConsumer
-my_map = st.map()
+import pymongo
 
+my_map = st.map()
+def insert_in_db(msg):
+    myclient = pymongo.MongoClient("mongodb://userdrumre:passdrumre@127.0.0.1:27017/")
+    #myclient = pymongo.MongoClient("mongodb://userdrumre:passdrumre@127.0.0.1:27017/")
+    my_db = myclient["sem2db"]
+    my_collection = my_db["gps"]
+    entry = {
+        "lat":msg[0],
+        "lon":msg[1]
+    }
+    my_collection.insert_one(entry)
 #my_nd_arr = np.array([[1, 2]])
 # my_nd_arr = np.array([
 #         [5.98,32.5],
@@ -17,6 +28,7 @@ my_nd_arr = np.array([
 def getdf(msg):
     global my_nd_arr
     print(msg)
+    insert_in_db(msg)
     print(msg[0])
     print(msg[1])
     print("---")
